@@ -44,7 +44,14 @@ public class CustomerManager extends ParentManager {
 
         // Лабораторная 2: добавить код который бы проверял, что нет customer'а c таким же login (email'ом).
         // Попробовать добавить другие ограничения, посмотреть как быстро растет кодовая база тестов.
+        CustomerPojo customerWithSameLogin = null;
+        try {
+            customerWithSameLogin = dbService.getCustomerByLogin(customer.login);
+        } catch (IllegalArgumentException ignored) {}
 
+        if (customerWithSameLogin != null) {
+            throw new IllegalArgumentException("Customer with such login already exists");
+        }
         return dbService.createCustomer(customer);
     }
 
@@ -78,7 +85,9 @@ public class CustomerManager extends ParentManager {
         // Лабораторная 2: обратите внимание что вернули данных больше чем надо...
         // т.е. getCustomerByLogin честно возвратит все что есть в базе данных по этому customer'у.
         // необходимо написать такой unit тест, который бы отлавливал данное поведение.
-        return dbService.getCustomerByLogin(authenticatedUserDetails.getName());
+        CustomerPojo pojo = dbService.getCustomerByLogin(authenticatedUserDetails.getName());
+        pojo.pass = null;
+        return pojo;
     }
 
     public void deleteCustomer(UUID id) {
@@ -86,7 +95,7 @@ public class CustomerManager extends ParentManager {
     }
 
     /**
-     * Метод добавляет к текущему баласу переданное значение, которое должно быть строго больше нуля.
+     * Метод добавляет к текущему балансу переданное значение, которое должно быть строго больше нуля.
      */
     public CustomerPojo topUpBalance(TopUpBalancePojo topUpBalancePojo) {
         CustomerPojo customerPojo = dbService.getCustomer(topUpBalancePojo.customerId);

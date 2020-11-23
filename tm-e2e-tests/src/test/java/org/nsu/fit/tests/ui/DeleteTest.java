@@ -5,20 +5,22 @@ import com.github.javafaker.service.RandomService;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
+import org.nsu.fit.services.browser.Browser;
+import org.nsu.fit.services.browser.BrowserService;
 import org.nsu.fit.services.rest.data.ContactPojo;
-import org.nsu.fit.services.rest.data.CustomerPojo;
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.nsu.fit.services.browser.Browser;
-import org.nsu.fit.services.browser.BrowserService;
 
-import java.net.ContentHandler;
+import javax.swing.*;
+import java.util.List;
 import java.util.Locale;
 
-public class AcceptanceTest {
+public class DeleteTest {
+
     private Browser browser = null;
 
     @BeforeClass
@@ -44,10 +46,10 @@ public class AcceptanceTest {
         return contactPojo;
     }
 
-    @Test(description = "Create customer via UI.")
+    @Test(description = "Delete customer via UI.")
     @Severity(SeverityLevel.BLOCKER)
-    @Feature("Create customer feature")
-    public void createCustomer() {
+    @Feature("Create delete feature")
+    public void deleteCustomer() {
         browser.waitForElement(By.tagName("h2"));
         Assert.assertEquals(browser.getElement(By.tagName("h2")).getText(), "Hi admin!");
 
@@ -61,6 +63,15 @@ public class AcceptanceTest {
         browser.getElement(By.name("password")).sendKeys(cp.pass);
         browser.getElement(By.xpath("//button[@type = 'submit']")).click();
 
+        List<WebElement> trs = browser.waitForElement(By.className("MuiTableBody-root"))
+                .getElements(By.className("MuiTableBody-root"))
+                .get(0)
+                .findElements(By.tagName("tr"));
+        trs.get(trs.size() - 5).findElement(By.xpath("//button[@title = 'Delete']")).click();
+        browser.getElements(By.tagName("tbody")).get(0).findElements(By.tagName("td")).get(0)
+                .findElements(By.tagName("button")).get(0).click();
+        //document.getElementsByTagName("tbody")[0].getElementsByTagName("td")[0].getElementsByTagName("button")[0].click()
+
         boolean exists = browser.waitForElement(By.className("MuiTableBody-root"))
                 .getElements(By.className("MuiTableBody-root"))
                 .get(0)
@@ -69,7 +80,7 @@ public class AcceptanceTest {
                 .anyMatch(row -> row.findElements(By.tagName("td"))
                         .get(1)
                         .getText().equals(cp.login));
-        Assert.assertTrue(exists);
+        Assert.assertFalse(exists);
     }
 
     @Test(description = "Create plan via UI.")

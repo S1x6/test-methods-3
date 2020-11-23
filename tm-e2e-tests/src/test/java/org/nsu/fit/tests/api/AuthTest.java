@@ -13,8 +13,8 @@ public class AuthTest {
 
     // Лабораторная 3: Разобраться с аннотациями, как они влияют на итоговый отчет.
     @Test(description = "Authenticate as admin.")
-    @Severity(SeverityLevel.BLOCKER)
-    @Feature("Authentication feature.")
+    @Severity(SeverityLevel.BLOCKER) // критичность теста
+    @Feature("Authentication feature.") // классификация теста как фича (а не epic, story)
     public void authAsAdminTest() {
         adminToken = new RestClient().authenticate("admin", "setup");
     }
