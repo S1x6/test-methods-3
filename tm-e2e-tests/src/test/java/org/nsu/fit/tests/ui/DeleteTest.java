@@ -63,17 +63,17 @@ public class DeleteTest {
         browser.getElement(By.name("password")).sendKeys(cp.pass);
         browser.getElement(By.xpath("//button[@type = 'submit']")).click();
 
-        List<WebElement> trs = browser.waitForElement(By.className("MuiTableBody-root"))
-                .getElements(By.className("MuiTableBody-root"))
+        List<WebElement> deleteButtons = browser.waitForElement(By.tagName("tbody"))
+                .getElements(By.tagName("tbody"))
                 .get(0)
-                .findElements(By.tagName("tr"));
-        trs.get(trs.size() - 5).findElement(By.xpath("//button[@title = 'Delete']")).click();
+                .findElements(By.tagName("button"));
+        deleteButtons.get(deleteButtons.size() - 1).click();
         browser.getElements(By.tagName("tbody")).get(0).findElements(By.tagName("td")).get(0)
                 .findElements(By.tagName("button")).get(0).click();
         //document.getElementsByTagName("tbody")[0].getElementsByTagName("td")[0].getElementsByTagName("button")[0].click()
 
-        boolean exists = browser.waitForElement(By.className("MuiTableBody-root"))
-                .getElements(By.className("MuiTableBody-root"))
+        boolean exists = browser.waitForElement(By.tagName("tbody"))
+                .getElements(By.tagName("tbody"))
                 .get(0)
                 .findElements(By.tagName("tr"))
                 .stream()
