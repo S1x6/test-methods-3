@@ -5,17 +5,15 @@ import com.github.javafaker.service.RandomService;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
+import org.nsu.fit.services.browser.Browser;
+import org.nsu.fit.services.browser.BrowserService;
 import org.nsu.fit.services.rest.data.ContactPojo;
-import org.nsu.fit.services.rest.data.CustomerPojo;
 import org.openqa.selenium.By;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.nsu.fit.services.browser.Browser;
-import org.nsu.fit.services.browser.BrowserService;
 
-import java.net.ContentHandler;
 import java.util.Locale;
 
 public class AcceptanceTest {

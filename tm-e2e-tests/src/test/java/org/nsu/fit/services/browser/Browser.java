@@ -41,7 +41,7 @@ public class Browser implements Closeable {
                 // Для того чтобы подобрать нужный chromedriver, необходимо посмотреть версию браузера Chrome
                 // на системе, на которой будут запускаться тесты и скачать соотвествующий ей chromedriver с сайта:
                 // https://chromedriver.chromium.org/downloads
-                System.setProperty("webdriver.chrome.driver", "C:/Programming/NSU/Test/chromedriver.exe");
+                System.setProperty("webdriver.chrome.driver", "C:/Users/evtni/IdeaProjects/test-methods-3/chromedriver.exe");
                 chromeOptions.setHeadless(Boolean.parseBoolean(System.getProperty("headless")));
                 webDriver = new ChromeDriver(chromeOptions);
             } else {
@@ -113,5 +113,9 @@ public class Browser implements Closeable {
     @Override
     public void close() {
         webDriver.close();
+    }
+
+    public WebDriver getDriver() {
+        return webDriver;
     }
 }

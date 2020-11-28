@@ -9,15 +9,19 @@ import org.nsu.fit.services.browser.Browser;
 import org.nsu.fit.services.browser.BrowserService;
 import org.nsu.fit.services.rest.data.ContactPojo;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.FluentWait;
+import org.openqa.selenium.support.ui.Wait;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import javax.swing.*;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 public class DeleteTest {
 
@@ -44,6 +48,15 @@ public class DeleteTest {
         contactPojo.login = fakeValuesService.bothify("?????_##@??????.com");
         contactPojo.pass = fakeValuesService.bothify("??##??#??#");
         return contactPojo;
+    }
+
+    public WebElement fluentWait(final By locator) {
+        Wait<WebDriver> wait = new FluentWait<>(browser.getDriver())
+                .withTimeout(30, TimeUnit.SECONDS)
+                .pollingEvery(5, TimeUnit.SECONDS)
+                .ignoring(NoSuchElementException.class);
+
+        return wait.until(driver -> driver.findElement(locator));
     }
 
     @Test(description = "Delete customer via UI.")
