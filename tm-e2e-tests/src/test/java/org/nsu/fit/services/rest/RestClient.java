@@ -1,5 +1,6 @@
 package org.nsu.fit.services.rest;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.javafaker.service.FakeValuesService;
 import com.github.javafaker.service.RandomService;
 import org.glassfish.jersey.client.ClientConfig;
@@ -10,20 +11,17 @@ import org.nsu.fit.services.rest.data.CredentialsPojo;
 import org.nsu.fit.services.rest.data.CustomerPojo;
 import org.nsu.fit.shared.JsonMapper;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.ClientRequestContext;
-import javax.ws.rs.client.ClientRequestFilter;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.*;
 import javax.ws.rs.core.MediaType;
-import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class RestClient {
     private static final String REST_URI = "http://localhost:8080/tm-backend/rest";
 
-    private static Client client = ClientBuilder.newClient(new ClientConfig().register(RestClientLogFilter.class));
+    private static final Client client = ClientBuilder.newClient(new ClientConfig().register(RestClientLogFilter.class));
 
     public AccountTokenPojo authenticate(String login, String pass) {
         CredentialsPojo credentialsPojo = new CredentialsPojo();
@@ -51,6 +49,26 @@ public class RestClient {
         return post("customers", JsonMapper.toJson(contactPojo, true), CustomerPojo.class, accountToken);
     }
 
+    public CustomerPojo createCustomerWithEasyPassword(AccountTokenPojo accountToken) {
+        ContactPojo contactPojo = new ContactPojo();
+
+        FakeValuesService fakeValuesService = new FakeValuesService(
+                new Locale("en-GB"), new RandomService());
+        contactPojo.firstName = fakeValuesService.letterify("?????");
+        contactPojo.lastName = fakeValuesService.letterify("?????????");
+        contactPojo.login = fakeValuesService.bothify("?????_##@??????.com");
+        contactPojo.pass = "123qwe";
+
+        return post("customers", JsonMapper.toJson(contactPojo, true), CustomerPojo.class, accountToken);
+    }
+
+    public List<CustomerPojo> getCustomerByLogin(String login, AccountTokenPojo token) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("login", login);
+        return get("customers" + login, new TypeReference<List<CustomerPojo>>() {
+        }, token, map);
+    }
+
     private static <R> R post(String path, String body, Class<R> responseType, AccountTokenPojo accountToken) {
         // Лабораторная 3: Добавить обработку Responses и Errors. Выводите их в лог.
         // Подумайте почему в filter нет Response чтобы можно было удобно его сохранить.
@@ -69,15 +87,35 @@ public class RestClient {
         return JsonMapper.fromJson(response, responseType);
     }
 
+    private static <R> R get(String path, TypeReference<R> responseType, AccountTokenPojo accountToken, Map<String, Object> map) {
+        WebTarget target = client
+                .target(REST_URI)
+                .path(path);
+
+        map.forEach(target::queryParam);
+
+        Invocation.Builder request = target
+                .request(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        if (accountToken != null) {
+            request.header("Authorization", "Bearer " + accountToken.token);
+        }
+
+        String response = request.get(String.class);
+
+        return JsonMapper.fromJson(response, responseType);
+    }
+
     private static class RestClientLogFilter implements ClientRequestFilter {
         @Override
         public void filter(ClientRequestContext requestContext) {
             Logger.debug(requestContext.getEntity().toString());
 
             Logger.debug("METHOD: " + requestContext.getMethod());
-            requestContext.getHeaders().forEach((h, list) -> {
-                Logger.debug("HEADER: " + h + ": " + list.stream().reduce((o, acc) -> acc + o.toString()));
-            });
+            requestContext.getHeaders().forEach((h, list) -> Logger.debug("HEADER: " + h + ": " + list.stream().reduce((o, acc) -> acc + o.toString()).get()));
+            Logger.debug("URL: " + requestContext.getUri().getHost() + requestContext.getUri().getPath());
+            Logger.debug("PORT: " + requestContext.getUri().getPort());
             // Done
             // Лабораторная 3: разобраться как работает данный фильтр
             // и добавить логирование METHOD и HEADERS.

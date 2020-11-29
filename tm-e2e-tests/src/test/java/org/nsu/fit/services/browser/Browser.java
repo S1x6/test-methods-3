@@ -5,6 +5,7 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.CapabilityType;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.io.Closeable;
@@ -69,13 +70,14 @@ public class Browser implements Closeable {
         return this;
     }
 
+
     public Browser waitForElement(By element) {
         return waitForElement(element, 10);
     }
 
     public Browser waitForElement(final By element, int timeoutSec) {
         WebDriverWait wait = new WebDriverWait(webDriver, timeoutSec);
-        //wait.until(ExpectedConditions.visibilityOfElementLocated(element));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(element));
         return this;
     }
 
